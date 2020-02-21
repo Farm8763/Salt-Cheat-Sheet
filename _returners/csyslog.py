@@ -187,7 +187,7 @@ def save_load(jid, load, minions=None):
     Return data to the local syslog
     '''
 
-    _options = _get_options(ret)
+    _options = _get_options()
 
     if not _verify_options(_options):
         return
@@ -208,7 +208,7 @@ def save_load(jid, load, minions=None):
         syslog.openlog(logoption=logoption)
 
     # Send log of given level and facility
-    syslog.syslog(facility | level, salt.utils.json.dumps(ret))
+    syslog.syslog(facility | level, salt.utils.json.dumps({}))
 
     # Close up to reset syslog to defaults
     syslog.closelog()
