@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 '''
 Return data to a remote syslog facility
-To use the syslog returner, append '--return logging' to the
+To use the logging returner, append '--return logging' to the
 salt command.
 .. code-block:: bash
-    salt '*' test.ping --return syslog
+    salt '*' test.ping --return logging
 The following fields can be set in the minion conf file::
-    syslog.level (optional, Default: LOG_INFO)
-    syslog.facility (optional, Default: LOG_USER)
-    syslog.tag (optional, Default: salt-minion)
-    syslog.options (list, optional, Default: [])
+    logging.level (optional, Default: LOG_INFO)
+    logging.facility (optional, Default: LOG_USER)
+    logging.tag (optional, Default: salt-minion)
+    logging.options (list, optional, Default: [])
 Available levels, facilities, and options can be found in the
 ``syslog`` docs for your python version.
 .. note::
@@ -84,14 +84,18 @@ def _get_options(ret=None):
     Get the returner options from salt.
     '''
 
-    defaults = {'level': 'LOG_INFO',
+    defaults = {'level': 'INFO',
                 'facility': 'LOG_USER',
+                'remote_port': 514,
+                'remote_ip': '127.0.0.1',
                 'options': []
                 }
 
     attrs = {'level': 'level',
              'facility': 'facility',
              'tag': 'tag',
+             'remote_ip': 'remote_ip',
+             'remote_port': 'remote_port',
              'options': 'options'
              }
 
@@ -111,18 +115,10 @@ def _verify_options(options):
     otherwise False
     '''
 
-    # sanity check all vals used for bitwise operations later
-    bitwise_args = [('level', options['level']),
-                    ('facility', options['facility'])
-                    ]
-    bitwise_args.extend([('option', x) for x in options['options']])
-
-    for opt_name, opt in bitwise_args:
-        if not hasattr(logging, opt):
-            log.error('logging has no attribute %s', opt)
-            return False
-        if not isinstance(getattr(logging, opt), int):
-            log.error('%s is not a valid syslog %s', opt, opt_name)
+    # Sanity check port
+    if 'port' in options:
+        if not isinstance(options['port'], int):
+            log.error('tag must be a string')
             return False
 
     # Sanity check tag
@@ -147,40 +143,23 @@ def returner(ret):
     '''
     Return data to the remote syslog
     '''
+    _options = _get_options(ret)
 
-#    _options = _get_options(ret)
+    if not _verify_options(_options):
+        return
 
-#    if not _verify_options(_options):
-#        return
+    remote_ip = _options.get('remote_ip')
+    remote_port = _options.get('remote_port')
+    level = logging.getLevelName(_options.get('level'))
 
-    # Get values from syslog module
-#    level = getattr(syslog, _options['level'])
-#    facility = getattr(syslog, _options['facility'])
-
-    # parse for syslog options
-#    logoption = 0
-#    for opt in _options['options']:
-#        logoption = logoption | getattr(syslog, opt)
-
-    # Open syslog correctly based on options and tag
-    #if 'tag' in _options:
-    #    syslog.openlog(ident=salt.utils.stringutils.to_str(_options['tag']), logoption=logoption)
-    #else:
-    #    syslog.openlog(logoption=logoption)
-
-    # Send log of given level and facility
-    #syslog.syslog(facility | level, salt.utils.json.dumps(ret))
-
-    # Close up to reset syslog to defaults
-    #syslog.closelog()
     my_logger = logging.getLogger('Salt-Master')
-    my_logger.setLevel(logging.DEBUG)
+    my_logger.setLevel(level)
 
-    handler = logging.handlers.SysLogHandler(address = ('10.137.80.209', 514))
+    handler = logging.handlers.SysLogHandler(address = (remote_ip, remote_port))
 
     my_logger.addHandler(handler)
 
-    my_logger.critical(salt.utils.json.dumps(ret))
+    my_logger.log(level, salt.utils.json.dumps(ret))
     del my_logger
 
 def prep_jid(nocache=False,
@@ -192,35 +171,9 @@ def prep_jid(nocache=False,
 
 def save_load(jid, load, minions=None):
     '''
-    Return data to the local syslog
+    Return data to the remote syslog
     '''
 
-    #_options = _get_options()
-
-    #if not _verify_options(_options):
-    #    return
-
-    # Get values from syslog module
-    #level = getattr(syslog, _options['level'])
-    #facility = getattr(syslog, _options['facility'])
-
-    # parse for syslog options
-    #logoption = 0
-    #for opt in _options['options']:
-    #    logoption = logoption | getattr(syslog, opt)
-
-    # Open syslog correctly based on options and tag
-    #if 'tag' in _options:
-    #    syslog.openlog(ident=salt.utils.stringutils.to_str(_options['tag']), logoption=logoption)
-    #else:
-    #    syslog.openlog(logoption=logoption)
-
-    # Send log of given level and facility
-    #syslog.syslog(facility | level, salt.utils.json.dumps({}))
-
-    # Close up to reset syslog to defaults
-    #syslog.closelog()
-
 def get_load(jid):
-  ret = { "local": { "master_minion": { "fun_args": [], "jid": "20150330121011408195", "return":"2018.3.4","retcode": 0,"success": "true","cmd": "_return","_stamp":"2015-03-30T12:10:12.708663", "fun": "test.version", "id":"master_minion"  }}}
+  ret = {}
   return ret
