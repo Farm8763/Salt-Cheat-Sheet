@@ -110,7 +110,8 @@ def returner(ret):
 
     handler = logging.handlers.SysLogHandler(address = (remote_ip, remote_port))
 
-    my_logger.addHandler(handler)
+    if not len(my_logger.handlers):
+        my_logger.addHandler(handler)
 
     my_logger.log(level, salt.utils.json.dumps(ret))
     del my_logger
