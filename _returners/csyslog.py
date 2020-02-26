@@ -214,5 +214,5 @@ def save_load(jid, load, minions=None):
     syslog.closelog()
 
 def get_load(jid):
-  ret = { "local": { "master_minion": { "fun_args": [], "jid": "20150330121011408195", "return":"2018.3.4","retcode": 0,"success": "true","cmd": "_return","_stamp":"2015-03-30T12:10:12.708663", "fun": "test.version", "id":"master_minion"  }}}
+  ret = {}
   return ret
