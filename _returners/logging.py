@@ -71,7 +71,7 @@ def _verify_options(options):
     # Sanity check port
     if 'port' in options:
         if not isinstance(options['port'], int):
-            log.error('tag must be a string')
+            log.error('port must be an int')
             return False
 
     # Sanity check tag
