@@ -6,57 +6,11 @@ salt command.
 .. code-block:: bash
     salt '*' test.ping --return logging
 The following fields can be set in the minion conf file::
-    logging.level (optional, Default: LOG_INFO)
+    logging.level (optional, Default: INFO)
     logging.facility (optional, Default: LOG_USER)
-    logging.tag (optional, Default: salt-minion)
-    logging.options (list, optional, Default: [])
-Available levels, facilities, and options can be found in the
-``syslog`` docs for your python version.
-.. note::
-    The default tag comes from ``sys.argv[0]`` which is
-    usually "salt-minion" but could be different based on
-    the specific environment.
-Configuration example:
-.. code-block:: yaml
-    syslog.level: 'LOG_ERR'
-    syslog.facility: 'LOG_DAEMON'
-    syslog.tag: 'mysalt'
-    syslog.options:
-      - LOG_PID
-Of course you can also nest the options:
-.. code-block:: yaml
-    syslog:
-      level: 'LOG_ERR'
-      facility: 'LOG_DAEMON'
-      tag: 'mysalt'
-      options:
-        - LOG_PID
-Alternative configuration values can be used by
-prefacing the configuration. Any values not found
-in the alternative configuration will be pulled from
-the default location:
-.. code-block:: yaml
-    alternative.syslog.level: 'LOG_WARN'
-    alternative.syslog.facility: 'LOG_NEWS'
-To use the alternative configuration, append
-``--return_config alternative`` to the salt command.
-.. versionadded:: 2015.5.0
-.. code-block:: bash
-    salt '*' test.ping --return syslog --return_config alternative
-To override individual configuration items, append
---return_kwargs '{"key:": "value"}' to the salt command.
-.. versionadded:: 2016.3.0
-.. code-block:: bash
-    salt '*' test.ping --return syslog --return_kwargs '{"level": "LOG_DEBUG"}'
-.. note::
-    Syslog server implementations may have limits on the maximum
-    record size received by the client. This may lead to job
-    return data being truncated in the syslog server's logs. For
-    example, for rsyslog on RHEL-based systems, the default
-    maximum record size is approximately 2KB (which return data
-    can easily exceed). This is configurable in rsyslog.conf via
-    the $MaxMessageSize config parameter. Please consult your syslog
-    implmentation's documentation to determine how to adjust this limit.
+    logging.remote_port (optional, Default: 514)
+    logging.remote_ip (optional, Default: '127.0.0.1')
+    logging.logger_name (optional, Default: 'Salt-Master')
 '''
 from __future__ import absolute_import, print_function, unicode_literals
 
@@ -88,15 +42,14 @@ def _get_options(ret=None):
                 'facility': 'LOG_USER',
                 'remote_port': 514,
                 'remote_ip': '127.0.0.1',
-                'options': []
+                'logger_name': 'Salt-Master'
                 }
 
     attrs = {'level': 'level',
              'facility': 'facility',
-             'tag': 'tag',
              'remote_ip': 'remote_ip',
              'remote_port': 'remote_port',
-             'options': 'options'
+             'logger_name': 'logger_name'
              }
 
     _options = salt.returners.get_returner_options(__virtualname__,
@@ -152,7 +105,7 @@ def returner(ret):
     remote_port = _options.get('remote_port')
     level = logging.getLevelName(_options.get('level'))
 
-    my_logger = logging.getLogger('Salt-Master')
+    my_logger = logging.getLogger(_options.get('logger_name'))
     my_logger.setLevel(level)
 
     handler = logging.handlers.SysLogHandler(address = (remote_ip, remote_port))
