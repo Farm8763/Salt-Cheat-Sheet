@@ -1,5 +1,6 @@
 # Salt-Cheat-Sheet
 Experimenting with Saltstack
+
 See https://github.com/Farm8763/Salt-Cheat-Sheet/wiki/Digital-Ocean-Setup for general setup
 
 ## Setup
