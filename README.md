@@ -1,16 +1,16 @@
 # Salt-Cheat-Sheet
 Experimenting with Saltstack
 
-#Setup
+## Setup
 
-##Salt Master
+### Salt Master
 ```
 /srv/salt/_returners
 /srv/salt/webserver
 /srv/salt/top.sls
 ```
 
-##Minion
+### Minion
 ```
 /etc/salt/minion.d/mysched.conf
 ```
