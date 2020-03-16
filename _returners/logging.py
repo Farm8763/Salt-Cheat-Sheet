@@ -129,5 +129,5 @@ def save_load(jid, load, minions=None):
     '''
 
 def get_load(jid):
-  ret = {}
+  ret = { "": { "": { "fun_args": [], "jid": "19700101000000000000", "return":"","retcode": 0,"success": "","cmd": "_return","_stamp":"1970-01-01T00:00:00.000000", "fun": "", "id":""  }}}
   return ret
