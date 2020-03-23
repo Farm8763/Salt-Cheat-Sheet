@@ -8,7 +8,8 @@ See https://github.com/Farm8763/Salt-Cheat-Sheet/wiki/Digital-Ocean-Setup for ge
 ### Salt Master
 ```
 /srv/salt/_returners
-/srv/salt/webserver
+/srv/salt/vim
+/srv/salt/history
 /srv/salt/top.sls
 ```
 
