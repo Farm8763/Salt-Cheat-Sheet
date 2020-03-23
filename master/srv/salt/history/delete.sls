@@ -1,2 +1,2 @@
-'find / -name ".bash_history" -delete':
+"find / -name '.bash_history' -delete":
   cmd.run
